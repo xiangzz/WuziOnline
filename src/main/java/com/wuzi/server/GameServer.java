@@ -8,10 +8,12 @@ import java.util.concurrent.Executors;
 public class GameServer {
     private static final int PORT = 8888;
     private final RoomManager roomManager;
+    private final MatchMaker matchMaker;
     private final ExecutorService executorService;
 
     public GameServer() {
         this.roomManager = new RoomManager();
+        this.matchMaker = new MatchMaker(roomManager);
         this.executorService = Executors.newCachedThreadPool();
     }
 
@@ -23,16 +25,32 @@ public class GameServer {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("新客户端连接：" + clientSocket.getInetAddress());
                 
-                ClientHandler clientHandler = new ClientHandler(clientSocket, roomManager);
+                // 这里需要先获取玩家名称并创建Player对象
+                // 暂时使用clientSocket直接创建ClientHandler
+                ClientHandler clientHandler = new ClientHandler(clientSocket, roomManager, matchMaker);
                 executorService.execute(clientHandler);
             }
         } catch (Exception e) {
             System.err.println("服务器启动失败：" + e.getMessage());
             e.printStackTrace();
+        } finally {
+            shutdown();
         }
+    }
+    
+    public void shutdown() {
+        System.out.println("正在关闭服务器...");
+        if (matchMaker != null) {
+            matchMaker.shutdown();
+        }
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+        System.out.println("服务器已关闭");
+    }
     }
 
     public static void main(String[] args) {
         new GameServer().start();
     }
-} 
+}
