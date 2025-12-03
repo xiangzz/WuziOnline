@@ -42,7 +42,11 @@ public class GameRoom {
     }
 
     public synchronized boolean startGame() {
-        if (playerCount.get() == 2 && !isGameStarted) {
+        if (playerCount.get() == 2 && (!isGameStarted || isGameOver)) {
+            if (isGameOver) {
+                gameBoard.reset();
+                isGameOver = false;
+            }
             isGameStarted = true;
             // 随机分配黑白
             boolean player1IsBlack = Math.random() < 0.5;

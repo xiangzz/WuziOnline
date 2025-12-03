@@ -16,17 +16,17 @@ class RoomManagerTest {
     void testCreateRoom() {
         GameRoom room = roomManager.createRoom();
         assertNotNull(room);
-        assertEquals(1, room.getRoomId());
+        assertEquals(11, room.getRoomId());
         
         GameRoom room2 = roomManager.createRoom();
         assertNotNull(room2);
-        assertEquals(2, room2.getRoomId());
+        assertEquals(12, room2.getRoomId());
     }
 
     @Test
     void testGetRoom() {
         GameRoom createdRoom = roomManager.createRoom();
-        GameRoom retrievedRoom = roomManager.getRoom(1);
+        GameRoom retrievedRoom = roomManager.getRoom(createdRoom.getRoomId());
         
         assertNotNull(retrievedRoom);
         assertEquals(createdRoom.getRoomId(), retrievedRoom.getRoomId());
@@ -39,18 +39,20 @@ class RoomManagerTest {
         roomManager.createRoom();
         roomManager.createRoom();
         
-        assertEquals(2, roomManager.getAllRooms().size());
-        assertTrue(roomManager.getAllRooms().containsKey(1));
-        assertTrue(roomManager.getAllRooms().containsKey(2));
+        // 10 initial rooms + 2 created = 12
+        assertEquals(12, roomManager.getAllRooms().size());
+        assertTrue(roomManager.getAllRooms().containsKey(11));
+        assertTrue(roomManager.getAllRooms().containsKey(12));
     }
 
     @Test
     void testRemoveRoom() {
-        roomManager.createRoom();
-        assertEquals(1, roomManager.getAllRooms().size());
+        GameRoom room = roomManager.createRoom();
+        // 10 initial + 1 created = 11
+        assertEquals(11, roomManager.getAllRooms().size());
         
-        roomManager.removeRoom(1);
-        assertEquals(0, roomManager.getAllRooms().size());
-        assertNull(roomManager.getRoom(1));
+        roomManager.removeRoom(room.getRoomId());
+        assertEquals(10, roomManager.getAllRooms().size());
+        assertNull(roomManager.getRoom(room.getRoomId()));
     }
 } 

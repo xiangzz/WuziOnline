@@ -26,12 +26,16 @@ public class ClientHandler implements Runnable {
             String playerName = reader.readLine();
             player = new Player(playerName, clientSocket, reader, writer);
 
+            // 发送欢迎消息和帮助
+            player.sendMessage("欢迎 " + playerName + "！输入 'ls rooms' 查看房间列表，或 'help' 查看帮助。");
+
             // 处理玩家命令
-            while (true) {
+            boolean running = true;
+            while (running) {
                 String command = reader.readLine();
                 if (command == null) break;
 
-                handleCommand(command);
+                running = handleCommand(command);
             }
         } catch (Exception e) {
             System.err.println("客户端处理错误：" + e.getMessage());
@@ -46,7 +50,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleCommand(String command) {
+    private boolean handleCommand(String command) {
         try {
             String[] parts = command.split(" ");
             switch (parts[0].toLowerCase()) {
@@ -65,15 +69,33 @@ public class ClientHandler implements Runnable {
                     break;
                 case "put":
                     if (parts.length > 2) {
-                        makeMove(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                        // 使用16进制解析坐标
+                        makeMove(Integer.parseInt(parts[1], 16), Integer.parseInt(parts[2], 16));
                     }
                     break;
+                case "quit":
+                    player.sendMessage("再见！");
+                    return false;
+                case "help":
+                    printHelp();
+                    break;
                 default:
-                    player.sendMessage("未知命令");
+                    player.sendMessage("未知命令，输入 'help' 查看帮助");
             }
+            return true;
         } catch (Exception e) {
             player.sendMessage("命令格式错误：" + e.getMessage());
+            return true;
         }
+    }
+
+    private void printHelp() {
+        player.sendMessage("可用命令：");
+        player.sendMessage("  ls rooms        - 查看所有房间列表");
+        player.sendMessage("  enter room <id> - 进入指定房间");
+        player.sendMessage("  start           - 准备开始游戏");
+        player.sendMessage("  put <x> <y>     - 在指定位置落子 (坐标 0-E)");
+        player.sendMessage("  quit            - 退出游戏");
     }
 
     private void listRooms() {

@@ -40,10 +40,10 @@ public class GameClient {
             // 处理用户输入
             while (true) {
                 String command = scanner.nextLine();
+                writer.println(command);
                 if (command.equalsIgnoreCase("quit")) {
                     break;
                 }
-                writer.println(command);
             }
 
         } catch (Exception e) {

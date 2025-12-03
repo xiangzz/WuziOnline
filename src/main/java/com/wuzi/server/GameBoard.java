@@ -13,6 +13,14 @@ public class GameBoard {
         }
     }
 
+    public void reset() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                board[i][j] = "┼";
+            }
+        }
+    }
+
     public boolean makeMove(int x, int y, String color) {
         if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE || !board[x][y].equals("┼")) {
             return false;

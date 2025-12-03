@@ -11,6 +11,10 @@ public class RoomManager {
     public RoomManager() {
         this.rooms = new ConcurrentHashMap<>();
         this.roomIdGenerator = new AtomicInteger(1);
+        // 初始化10个房间
+        for (int i = 0; i < 10; i++) {
+            createRoom();
+        }
     }
 
     public GameRoom createRoom() {

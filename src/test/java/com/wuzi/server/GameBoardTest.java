@@ -29,7 +29,7 @@ class GameBoardTest {
     void testInvalidMove() {
         assertFalse(gameBoard.makeMove(-1, 0, "black"));
         assertFalse(gameBoard.makeMove(0, 15, "white"));
-        assertFalse(gameBoard.makeMove(7, 7, "black"));
+        assertTrue(gameBoard.makeMove(7, 7, "black"));
         assertFalse(gameBoard.makeMove(7, 7, "white")); // 重复落子
     }
 
