@@ -21,6 +21,7 @@ public class RoomManager {
         int roomId = roomIdGenerator.getAndIncrement();
         GameRoom room = new GameRoom(roomId);
         rooms.put(roomId, room);
+        ServerLogger.info("创建房间: " + roomId);
         return room;
     }
 
@@ -34,5 +35,6 @@ public class RoomManager {
 
     public void removeRoom(int roomId) {
         rooms.remove(roomId);
+        ServerLogger.info("销毁房间: " + roomId);
     }
 } 

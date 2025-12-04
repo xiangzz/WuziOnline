@@ -8,8 +8,11 @@ public class GameRoom {
     private final GameBoard gameBoard;
     private Player player1;
     private Player player2;
+    private boolean player1Ready;
+    private boolean player2Ready;
     private boolean isGameStarted;
     private boolean isGameOver;
+    private String currentTurnColor;
 
     public GameRoom(int roomId) {
         this.roomId = roomId;
@@ -17,6 +20,8 @@ public class GameRoom {
         this.gameBoard = new GameBoard();
         this.isGameStarted = false;
         this.isGameOver = false;
+        this.player1Ready = false;
+        this.player2Ready = false;
     }
 
     public synchronized boolean addPlayer(Player player) {
@@ -25,8 +30,10 @@ public class GameRoom {
         }
         if (player1 == null) {
             player1 = player;
+            player1Ready = false;
         } else {
             player2 = player;
+            player2Ready = false;
         }
         playerCount.incrementAndGet();
         return true;
@@ -35,23 +42,42 @@ public class GameRoom {
     public synchronized void removePlayer(Player player) {
         if (player == player1) {
             player1 = null;
+            player1Ready = false;
         } else if (player == player2) {
             player2 = null;
+            player2Ready = false;
         }
         playerCount.decrementAndGet();
+        isGameStarted = false;
     }
 
-    public synchronized boolean startGame() {
+    public synchronized boolean setPlayerReady(Player player) {
+        if (player == player1) {
+            player1Ready = true;
+        } else if (player == player2) {
+            player2Ready = true;
+        }
+        
+        if (player1Ready && player2Ready) {
+            return startGame();
+        }
+        return false;
+    }
+
+    private synchronized boolean startGame() {
         if (playerCount.get() == 2 && (!isGameStarted || isGameOver)) {
             if (isGameOver) {
                 gameBoard.reset();
                 isGameOver = false;
             }
             isGameStarted = true;
+            player1Ready = false;
+            player2Ready = false;
             // 随机分配黑白
             boolean player1IsBlack = Math.random() < 0.5;
             player1.setColor(player1IsBlack ? "black" : "white");
             player2.setColor(player1IsBlack ? "white" : "black");
+            currentTurnColor = "black";
             return true;
         }
         return false;
@@ -61,7 +87,18 @@ public class GameRoom {
         if (!isGameStarted || isGameOver) {
             return false;
         }
-        return gameBoard.makeMove(x, y, color);
+        if (!color.equals(currentTurnColor)) {
+            return false;
+        }
+        if (gameBoard.makeMove(x, y, color)) {
+            currentTurnColor = currentTurnColor.equals("black") ? "white" : "black";
+            return true;
+        }
+        return false;
+    }
+
+    public String getCurrentTurnColor() {
+        return currentTurnColor;
     }
 
     public boolean checkWin(int x, int y) {

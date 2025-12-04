@@ -46,7 +46,12 @@ class GameRoomTest {
         gameRoom.addPlayer(player1);
         gameRoom.addPlayer(player2);
         
-        assertTrue(gameRoom.startGame());
+        // 玩家1准备
+        assertFalse(gameRoom.setPlayerReady(player1));
+        assertFalse(gameRoom.isGameStarted());
+        
+        // 玩家2准备，游戏开始
+        assertTrue(gameRoom.setPlayerReady(player2));
         assertTrue(gameRoom.isGameStarted());
         assertNotNull(player1.getColor());
         assertNotNull(player2.getColor());
@@ -56,7 +61,7 @@ class GameRoomTest {
     @Test
     void testCannotStartGameWithOnePlayer() {
         gameRoom.addPlayer(player1);
-        assertFalse(gameRoom.startGame());
+        assertFalse(gameRoom.setPlayerReady(player1));
         assertFalse(gameRoom.isGameStarted());
     }
 
@@ -64,10 +69,24 @@ class GameRoomTest {
     void testMakeMove() {
         gameRoom.addPlayer(player1);
         gameRoom.addPlayer(player2);
-        gameRoom.startGame();
+        gameRoom.setPlayerReady(player1);
+        gameRoom.setPlayerReady(player2);
         
-        assertTrue(gameRoom.makeMove(0, 0, player1.getColor()));
-        assertFalse(gameRoom.makeMove(0, 0, player2.getColor())); // 重复落子
+        // Need to make sure we use the correct color for the first move (black)
+        String blackPlayerColor = "black";
+        String whitePlayerColor = "white";
+        
+        // Find out which player is black
+        Player blackPlayer = player1.getColor().equals("black") ? player1 : player2;
+        Player whitePlayer = player1.getColor().equals("black") ? player2 : player1;
+
+        assertTrue(gameRoom.makeMove(0, 0, blackPlayer.getColor()));
+        assertFalse(gameRoom.makeMove(0, 0, whitePlayer.getColor())); // 重复落子 (occupied)
+        
+        // Test turn order
+        assertTrue(gameRoom.makeMove(0, 1, whitePlayer.getColor())); // White moves
+        assertFalse(gameRoom.makeMove(0, 2, whitePlayer.getColor())); // White moves again (should fail)
+        assertTrue(gameRoom.makeMove(0, 2, blackPlayer.getColor())); // Black moves
     }
 
     @Test
@@ -82,7 +101,8 @@ class GameRoomTest {
     void testGameOver() {
         gameRoom.addPlayer(player1);
         gameRoom.addPlayer(player2);
-        gameRoom.startGame();
+        gameRoom.setPlayerReady(player1);
+        gameRoom.setPlayerReady(player2);
         
         assertFalse(gameRoom.isGameOver());
         gameRoom.setGameOver(true);

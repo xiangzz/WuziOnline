@@ -17,17 +17,17 @@ public class GameServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("五子棋服务器启动，监听端口：" + PORT);
+            ServerLogger.success("五子棋服务器启动，监听端口：" + PORT);
             
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("新客户端连接：" + clientSocket.getInetAddress());
+                ServerLogger.info("新客户端连接：" + clientSocket.getInetAddress());
                 
                 ClientHandler clientHandler = new ClientHandler(clientSocket, roomManager);
                 executorService.execute(clientHandler);
             }
         } catch (Exception e) {
-            System.err.println("服务器启动失败：" + e.getMessage());
+            ServerLogger.error("服务器启动失败：" + e.getMessage());
             e.printStackTrace();
         }
     }
